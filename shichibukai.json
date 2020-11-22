@@ -1,0 +1,90 @@
+{
+    "dracule mihawk": {
+        "age": "43",
+        "height": "198cm",
+        "birthday": "March 9",
+        "bounty": "Unknown",
+        "epithet": "hawk-eyes",
+        "abilities_and_powers": "Great Physical Strength"
+    },
+    "jinbe": {
+        "age": "46",
+        "height": "301cm",
+        "birthday": "April 2",
+        "bounty": "250,000,000",
+        "epithet": "knight of the sea",
+        "abilities_and_powers": "Great Endurance"
+    },
+    "crocodile": {
+        "age": "46",
+        "height": "253cm",
+        "birthday": "September 5",
+        "bounty": "81,000,000",
+        "epithet": "sir",
+        "abilities_and_powers": "Great Physical Strength"
+    },
+    "donquixote doflamingo": {
+        "age": "41",
+        "height": "305cm",
+        "birthday": "October 23",
+        "bounty": "340,000,000",
+        "epithet": "heavenly yaksha",
+        "abilities_and_powers": "Awakened Devil Fruit"
+    },
+    "bartholomew kuma": {
+        "age": "47",
+        "height": "689cm",
+        "birthday": "February 9",
+        "bounty": "296,000,000",
+        "epithet": "tyrant",
+        "abilities_and_powers": "Great Endurance"
+    },
+    "marshall d. teach": {
+        "age": "40",
+        "height": "344cm",
+        "birthday": "August 3",
+        "bounty": "No bounty",
+        "epithet": "blackbeard",
+        "abilities_and_powers": "Will of D."
+    },
+    "gecko moria": {
+        "age": "50",
+        "height": "692cm",
+        "birthday": "September 5",
+        "bounty": "320,000,000",
+        "epithet": "",
+        "abilities_and_powers": "Great Endurance"
+    },
+    "boa hancock": {
+        "age": "31",
+        "height": "191cm",
+        "birthday": "September 2",
+        "bounty": "80,000,000",
+        "epithet": "pirate empress",
+        "abilities_and_powers": "Royalty"
+    },
+    "trafalgar d. water law": {
+        "age": "26",
+        "height": "191cm",
+        "birthday": "October 6",
+        "bounty": "440,000,000",
+        "epithet": "surgeon of death",
+        "abilities_and_powers": "Will of D."
+    },
+    "buggy": {
+        "age": "39",
+        "height": "192cm",
+        "birthday": "August 8",
+        "bounty": "15,000,000",
+        "epithet": "the clown",
+        "abilities_and_powers": "Expert Manipulator"
+    },
+    "edward weevil": {
+        "age": "35",
+        "height": "680cm",
+        "birthday": "",
+        "bounty": "",
+        "epithet": "whitebeard jr.",
+        "abilities_and_powers": "Kenbunshoku Haki"
+    }
+}

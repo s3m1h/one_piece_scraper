@@ -161,6 +161,7 @@ def organizations_pirate_crews_scrapy():
 def organizations_shichibukai_scrapy():
     req = requests.get(URL['organizations']['shichibukai'], headers = HEADERS)
     soup = bs(req.content, 'html.parser')
+    items = {}
     for i in soup('table', class_='sortable')[0]('tr')[1:]:
         name = i('td')[0].a.get('title').lower()
         birthday = re.search(r'\[\d{1,}\]',i('td')[3].text)
@@ -168,11 +169,19 @@ def organizations_shichibukai_scrapy():
         data = {
             'age': i('td')[1].text.strip().replace('\n',''),
             'height':i('td')[2].text[:5],
-            'birthday':[i('td')[3].text.replace(birthday.group(),'') if birthday is not None else ''][0],
-            'bounty':[i('td')[4].text.replace(bounty.group(),'') if bounty is not None else ''][0],
+            'birthday':[i('td')[3].text.replace(birthday.group(),'') if birthday is not None else ''][0].replace('\n',''),
+            'bounty':[i('td')[4].text.replace(bounty.group(),'') if bounty is not None else ''][0].replace('\n',''),
+            'epithet':[i('td')[6].b.text if i('td')[6].b is not None else ''][0].lower()    
         }
         for powers in i('td')[5]('li'):
             data['abilities_and_powers'] = powers.text
+        items[name] = data
+    json_save(items, 'shichibukai')
+    
+def organizations_yonko_scrapy():
+    req = requests.get(URL['organizations']['yonko'], headers = HEADERS)
+    soup = bs(req.content, 'html.parser')
+    
 if __name__=='__main__':
 
     #straw_hat_prites_scrapy('strawhatpirates')
@@ -193,4 +202,4 @@ if __name__=='__main__':
     #lncanon_characters_scrapy()
     
     #organizations_marines_scrapy()
-    organizations_shichibukai_scrapy()
+    #organizations_shichibukai_scrapy()
