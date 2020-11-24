@@ -4,29 +4,49 @@ import requests
 import re
 import time
 ###
-from util import json_save
+from util import (
+    json_save,
+    sup_cite_parser,
+    sup_cite_parser2
+)
 HEADERS = {"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36 Edg/86.0.622.69"}
 URL = {
+    'strawhatpirates':'https://onepiece.fandom.com/wiki/Straw_Hat_Pirates',
+    'pirate_crews':{
+        'strawhatpirates':'https://onepiece.fandom.com/wiki/Straw_Hat_Pirates',
+        'bigmom':'https://onepiece.fandom.com/wiki/Big_Mom_Pirates',
+        'beasts':'https://onepiece.fandom.com/wiki/Beasts_Pirates',
+        'redhair':'https://onepiece.fandom.com/wiki/Red_Hair_Pirates',
+        'blacbeard':'https://onepiece.fandom.com/wiki/Blackbeard_Pirates',
+        'whitebeard':'https://onepiece.fandom.com/wiki/Whitebeard_Pirates',
+        'sun':'https://onepiece.fandom.com/wiki/Sun_Pirates',
+        'buggys':'https://onepiece.fandom.com/wiki/Buggy%27s_Delivery',
+        'heart':'https://onepiece.fandom.com/wiki/Heart_Pirates',
+        'baroque':'https://onepiece.fandom.com/wiki/Baroque_Works',
+        'donquixote':'https://onepiece.fandom.com/wiki/Donquixote_Pirates',
+        'thriller_bark':'https://onepiece.fandom.com/wiki/Thriller_Bark_Pirates',
+    },
     'characters':{
-        'strawhatpirates': 'https://onepiece.fandom.com/wiki/Straw_Hat_Pirates',
         # List of Canon Characters
         'lncanon': 'https://onepiece.fandom.com/wiki/List_of_Canon_Characters',
         # List_of_Non-Canon_Characters
         'noncanon': 'https://onepiece.fandom.com/wiki/List_of_Non-Canon_Characters'
     },
     'organizations':{
-        'marines': 'https://onepiece.fandom.com/wiki/Marines',
+        'pirates': 'https://onepiece.fandom.com/wiki/Marines',
         'pirate_crews':'https://onepiece.fandom.com/wiki/Category:Pirate_Crews',
         'shichibukai':'https://onepiece.fandom.com/wiki/Seven_Warlords_of_the_Sea',
         'yonko':'https://onepiece.fandom.com/wiki/Four_Emperors',
         'word_government':'https://onepiece.fandom.com/wiki/World_Government',
         'revolutionary_army':'https://onepiece.fandom.com/wiki/Revolutionary_Army'
-    }  
+    },
+    'impeldown': 'https://onepiece.fandom.com/wiki/Impel_Down'
+    
 }
 ### Characters
-def straw_hat_prites_scrapy(url_key):
-    url = URL['characters'][url_key]
-    req = requests.get(url, header=HEADERS)
+def straw_hat_prites_scrapy(path): #https://onepiece.fandom.com/wiki/Straw_Hat_Pirates --> table
+    url = URL['strawhatpirates']
+    req = requests.get(url, headers=HEADERS)
     soup = bs(req.content, 'html.parser')
     table = soup('table',class_='sortable')
     items = {}
@@ -39,35 +59,44 @@ def straw_hat_prites_scrapy(url_key):
             'capabilities':table[0]('tr')[i]('td')[2].text.strip().lower().replace("",'').split('\n'),
             'epithet':[unvan.b.text.replace('"','') if unvan.b else unvan.text][0].lower()
         }
-        view_url = requests.get(item['wiki_url'])
-        view_soup = bs(view_url.content, 'html.parser')
+        items[name] = item
+    json_save(items, path)
+def pirate_crews_scrapy():
+    req = requests.get(URL['pirate_crews']['whitebeard'], headers = HEADERS)
+    soup = bs(req.content, 'html.parser')
+    items = {}
+    liste = ['status','age','birthday','height','bounty', 'occupations','epithet','japanese_name','devil_fruit','fruit']
+    #print(soup('table',class_='cs')[0]('th')[0].text)
+    for j in soup('div',class_='Gallery-pic')[:-2]:
+        name = j.a.get('title')
+        name_url = 'https://onepiece.fandom.com' + j.a.get('href')
+        rq = requests.get(name_url, headers = HEADERS)
+        view_soup = bs(rq.content, 'html.parser')
         aside = view_soup('aside')[0]
+        # data verisinin içinde önce listedeki elemanları none olarak atıyoruz sebebi ise bazı karakterlerin bazı özellikleri yok 
+        data = {}
+        for li in liste:
+            data[li] = None
         try:
-            apt = aside('figure',class_="pi-image")[0].a.get('href')
-            aprt = aside('figure',class_="pi-image")[1].a.get('href')
-            mpt = aside('figure',class_="pi-image")[2].a.get('href')
-            mprt = aside('figure',class_="pi-image")[3].a.get('href')
+            section0 = aside('section',class_='pi-item')[0]
+            section1 = aside('section',class_='pi-item')[1]
         except:
-            apt = None
-            aprt = None
-            mpt = None
-            mprt = None
-        item['image_url'] ={
-            'anime-post-timeskip': apt,
-            'anime-pre-timeskip':aprt,
-            'manga-post-timeskip':mpt,
-            'manga-pre-timeskip':mprt
-        }
-        #pattern = re.compile(r'\[\d{1,}\]')
-        f = aside.find('section',class_='pi-item')('div',class_='pi-item')
-        age = f[11]('div')[0].text
-        fiyat = f[14]('div')[0].text
-        print(fiyat.split(re.search(r'\[\d{1,}\]',fiyat).group())[0])
-        # for i in aside.find('section',class_='pi-item'):
-        #     if i('h3')[0].text.replace(':','').lower().replace(' ','_') in liste:
-        #         item[i('h3')[0].text.replace(':','').lower().replace(' ','_')] = i.find('div').text
-        #items[name] = item
-    #json_save(items,'mugiwara')
+            section1 = ''
+        for i in section0('div')[:-2]:
+            if i('h3') != []:
+                h3 = i('h3')[0].text.lower().replace(':','').replace(' ','')
+                for h3_name in liste:
+                    if h3 == h3_name:
+                        print(h3_name , i('div')[0].text)
+                        data[h3_name] = sup_cite_parser2(i('div')[0].text.replace('\"','')).strip()
+                        if section1 == '':
+                            data['devil_fruit'] = None
+                        else:
+                            data['devil_fruit'] = 'yes'
+                            data['fruit'] = sup_cite_parser2(section1('div')[0].find('div').text)
+        items[name] = data
+    json_save(items,'whitebeard') 
+pirate_crews_scrapy()
 def straw_hat_prites_galery_scrapy(name, path):
     session = HTMLSession()
     req = session.get(f'https://onepiece.fandom.com/wiki/{name}/Gallery') 
@@ -137,55 +166,33 @@ def organizations_marines_scrapy():
         # }
         items[name.lower()] = 'https://onepiece.fandom.com/' + i.a.get('href')
     json_save(items,'marines')
-### TRENDING PAGES
-def organizations_pirate_crews_scrapy():
-    req = requests.get(URL['organizations']['pirate_crews'], headers = HEADERS)
-    soup = bs(req.content, 'html.parser')
-    items = {}
-    for i in soup('ul',class_='category-page__trending-pages')[0]('li'):
-        pirate_crews_name = i.a.text.lower().replace('\n','').strip()
-        pirate_crews_url = i.a.get('href')
-        rq = requests.get('https://onepiece.fandom.com'+ pirate_crews_url, headers=HEADERS)
-        soupp = bs(rq.content, 'html.parser')
-        liste = []
-        for j in soupp('div',class_='Gallery-pic'):
-            name = j.a.get('title')
-            if j.a.img is not None:
-                data = {
-                    'name':j.a.get('title'),
-                    'image':j.a.img.get('data-src')  
-                }
-                liste.append(data)
-        items[pirate_crews_name] = liste
-    print(items)
+
 def organizations_shichibukai_scrapy():
     req = requests.get(URL['organizations']['shichibukai'], headers = HEADERS)
     soup = bs(req.content, 'html.parser')
     items = {}
     for i in soup('table', class_='sortable')[0]('tr')[1:]:
         name = i('td')[0].a.get('title').lower()
-        birthday = re.search(r'\[\d{1,}\]',i('td')[3].text)
-        bounty = re.search(r'\[\d{1,}\]',i('td')[4].text)
         data = {
             'age': i('td')[1].text.strip().replace('\n',''),
             'height':i('td')[2].text[:5],
-            'birthday':[i('td')[3].text.replace(birthday.group(),'') if birthday is not None else ''][0].replace('\n',''),
-            'bounty':[i('td')[4].text.replace(bounty.group(),'') if bounty is not None else ''][0].replace('\n',''),
+            'birthday':sup_cite_parser(i('td')[3].text.replace('\n','')),
+            'bounty': sup_cite_parser(i('td')[4].text.replace('\n','')),
             'epithet':[i('td')[6].b.text if i('td')[6].b is not None else ''][0].lower()    
         }
         for powers in i('td')[5]('li'):
             data['abilities_and_powers'] = powers.text
         items[name] = data
-    json_save(items, 'shichibukai')
-    
+    print(items)
+    #json_save(items, 'shichibukai')
 def organizations_yonko_scrapy():
     req = requests.get(URL['organizations']['yonko'], headers = HEADERS)
     soup = bs(req.content, 'html.parser')
     
 if __name__=='__main__':
-
-    #straw_hat_prites_scrapy('strawhatpirates')
-    
+    # straw_hat_prites_scrapy('mugivara no lufi')
+    pass
+    #pirate_crews_scrapy()
     # Straw hat prites galery
     #(Tony_Tony_Chopper, path)
     #straw_hat_prites_galery_scrapy('Monkey_D._Luffy','mdluffy')
